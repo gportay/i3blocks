@@ -1,0 +1,60 @@
+#!/bin/bash
+#
+# path_exists - mock up the path_exists module from i3status.
+# Copyright (C) 2018  Gaël PORTAY
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+set -e
+
+# Required a single argument
+if [ $# -ne 1 ]
+then
+	cat <<EOF
+Usage: ${0##*/} TITLE
+
+For a more thorough description, please refers to i3-status man page.
+
+EOF
+	exit 1
+fi >&2
+
+# Setup default values
+# path= must be set
+format="${format:-%title: %status}"
+format_down="${format_down-$format}"
+
+# Set full text format string
+fulltext_format="$format"
+
+# Compute all placeholders values
+_title="$1"
+if ! test -e "$path"
+then
+	_status="no"
+	color="#ff0000"
+	fulltext_format="$format_down"
+else
+	_status="yes"
+	color="#00ff00"
+fi
+
+# Update full text (first line)
+eval "$(echo "echo \"${fulltext_format//%/\$_}\"")"
+
+# Update text color
+echo          # empty short text (second line)
+echo "$color" # text color (third line)
+              # no background color (four line)
