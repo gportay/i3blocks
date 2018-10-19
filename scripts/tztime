@@ -1,0 +1,69 @@
+#!/bin/bash
+#
+# tztime - mock up the tztime module from i3status.
+# Copyright (C) 2018  Gaël PORTAY
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+set -e
+
+# Required a single argument
+if [ $# -ne 1 ]
+then
+	cat <<EOF
+Usage: ${0##*/} TITLE
+
+For a more thorough description, please refers to i3-status man page.
+
+EOF
+	exit 1
+fi >&2
+
+# Setup default values
+format="${format:-%Y-%m-%d %H:%M:%S %Z}"
+#timezone= may be set"
+#locale= may be set"
+#format_time= may be set
+
+# Set full text format string
+fulltext_format="$format"
+
+# Export timezone
+if [[ $timezone ]]
+then
+	TZ="$timezone"
+	export TZ
+fi
+
+# Export locale
+if [[ $locale ]]
+then
+	LC_ALL="$locale"
+	export LC_ALL
+fi
+
+# Time format?
+if ! [[ $format_time ]]
+then
+	# Update full text (first line)
+	date "+$format"
+	exit
+fi
+
+# Compute time placeholder value
+_time="$(date "+$format_time")"
+
+# Update full text (first line)
+eval "$(echo "echo \"${fulltext_format//%/\$_}\"")"
