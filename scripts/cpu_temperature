@@ -1,0 +1,74 @@
+#!/bin/bash
+#
+# cpu_temperature - mock up the cpu_temperature module from i3status.
+# Copyright (C) 2018  Gaël PORTAY
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+set -e
+
+# Required a single argument
+if [ $# -ne 1 ]
+then
+	cat <<EOF
+Usage: ${0##*/} BAT_NUM|all
+
+For a more thorough description, please refers to i3-status man page.
+
+EOF
+	exit 1
+fi >&2
+
+# Setup default values
+format="${format:-%degrees C}"
+#format_above_threshold= may be set
+#path= may be set
+max_threshold="${max_threshold:-75}"
+
+# Required a single argument
+syspath="$(printf "${path:-/sys/class/thermal/thermal_zone%d/temp}" "$1")"
+if ! [ -e "$syspath" ]
+then
+	echo "can't read temp"
+	exit 0
+fi
+
+# Set full text format string
+fulltext_format="$format"
+
+# Get temperature from file
+degrees="$(cat "$syspath")"
+
+# Compute degree placeholder value
+_degrees="$((degrees / 1000))"
+
+# Check for threshold to update formatted string
+fulltext_format="$format"
+if [[ $_degrees -ge $max_threshold ]]
+then
+	threshold=true
+	fulltext_format="${format_above_threshold:-$format}"
+fi
+
+# Update full text (first line)
+eval "$(echo "echo \"${fulltext_format//%/\$_}\"")"
+
+# Update text color if threshold is reached
+if [[ $threshold ]]
+then
+	echo           # empty short text (second line)
+	echo "#ff0000" # text color (third line)
+	               # no background color (four line)
+fi
