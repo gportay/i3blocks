@@ -1,0 +1,70 @@
+# i3blocks configuration file.
+#
+# Please see man i3blocks for a complete reference!
+# The man page is also hosted at http://vivien.github.io/i3blocks
+#
+# List of valid properties:
+#
+# align
+# color
+# background
+# border
+# command
+# full_text
+# instance
+# interval
+# label
+# min_width
+# name
+# separator
+# separator_block_width
+# short_text
+# signal
+# urgent
+
+# Global properties
+#
+# The top properties below are applied to every block, but can be overridden.
+# Each block command defaults to the script name to avoid boilerplate.
+
+command=./$name $instance
+colors=true
+interval=5
+
+[disk]
+instance=/
+format=%avail
+# Default values
+#format=%free
+#format_below_threshold is left unset
+#format_not_mounted is left unset
+#prefix_type=binary
+#threshold_type=percentage_avail
+#low_threshold=0
+
+[battery]
+instance=all
+# Default values
+#format=%status %percentage %remaining
+#format_down=No battery
+#status_chr=CHR
+#status_bat=BAT
+#status_unk=UNK
+#status_full=FULL
+#path=/sys/class/power_supply/BAT%d/uevent
+#low_threshold=30
+#threshold_type=time
+#last_full_capacity=false
+#integer_battery_capacity=false
+#hide_seconds=true
+
+[load]
+format=%1min
+# Default values
+#format=%1min %5min %15min
+
+[tztime]
+instance=local
+format=%Y-%m-%d %H:%M:%S
+# Default values
+#format=%Y-%m-%d %H:%M:%S %Z
